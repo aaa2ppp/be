@@ -1,7 +1,7 @@
 all: vet lint test
 
 lint:
-	@golangci-lint run --print-issued-lines=false --out-format=colored-line-number ./...
+	@golangci-lint run ./...
 	@echo "✓ lint"
 
 vet:
