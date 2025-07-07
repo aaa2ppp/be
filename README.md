@@ -1,4 +1,4 @@
-# Be - a minimal package for test assertions
+# Be - a minimal test assertions package
 
 If you want simple test assertions and feel like [testify](https://pkg.go.dev/github.com/attic-labs/testify/assert) is too much, but [is](https://pkg.go.dev/github.com/matryer/is) is too basic, you might like `be`.
 
