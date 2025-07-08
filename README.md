@@ -9,6 +9,8 @@ Highlights:
 -   Flexible error assertions: check if an error exists, check its value, type, or any combination of these.
 -   Zero hassle.
 
+Be is new, but it's ready for production (or maybe I should say "testing" :)
+
 ## Usage
 
 Install with go get:
@@ -125,7 +127,7 @@ Be is opinionated. It only has three assert functions, which are perfectly enoug
 
 Unlike other testing packages, Be doesn't support custom error messages. When a test fails, you'll end up checking the code anyway, so why bother? The line number shows the way.
 
-Be has a flexible error assertion. You don't need to choose between `Error`, `ErrorIs`, `ErrorAs`, `ErrorContains`, `NoError`, or anything like that — just use `Err`. It covers everything.
+Be has flexible error assertions. You don't need to choose between `Error`, `ErrorIs`, `ErrorAs`, `ErrorContains`, `NoError`, or anything like that — just use `be.Err`. It covers everything.
 
 Be doesn't fail the test when an assertion fails, so you can see all the errors at once instead of hunting them one by one. The only exception is when the `be.Err(err, nil)` assertion fails — this means there was an unexpected error. In this case, the test terminates immediately because any following assertions probably won't make sense and could cause panics.
 
