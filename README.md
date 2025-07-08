@@ -9,7 +9,7 @@ Highlights:
 -   Flexible error assertions: check if an error exists, check its value, type, or any combination of these.
 -   Zero hassle.
 
-Be is new, but it's ready for production (or maybe I should say "testing" :)
+Be is new, but it's ready for production (or maybe I should say "testing" :) I've used it in three very different projects — a CLI tool, an API server, and a database engine — and it worked great every time.
 
 ## Usage
 
