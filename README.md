@@ -124,7 +124,7 @@ func Test(t *testing.T) {
 ```go
 func Test(t *testing.T) {
     s := "go is awesome"
-    be.True(t, strings.Contains(s, "go"))
+    be.True(t, len(s) > 0)
     // ok
 }
 ```
@@ -144,6 +144,12 @@ Be doesn't fail the test when an assertion fails, so you can see all the errors 
 The parameter order is (got, want), not (want, got). It just feels more natural — like saying "account balance is 100 coins" instead of "100 coins is the account balance".
 
 Be has ≈100 lines of code (+450 lines for tests). For comparison, `is` has ≈250 loc (+250 lines for tests).
+
+## Contributing
+
+Bug fixes are welcome. For anything other than bug fixes, please open an issue first to discuss your proposed changes. The package has a very limited scope, so it's important to discuss any new features before implementing them.
+
+Make sure to add or update tests as needed.
 
 ## License
 
