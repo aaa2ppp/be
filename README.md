@@ -37,6 +37,16 @@ func Test(t *testing.T) {
 }
 ```
 
+Or that a value matches any of the given values:
+
+```go
+func Test(t *testing.T) {
+    got := 2 * 3 * 7
+    be.Equal(t, got, 21, 42, 84)
+    // ok
+}
+```
+
 `Err` asserts that there is an error:
 
 ```go

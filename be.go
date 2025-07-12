@@ -28,15 +28,30 @@ type equaler[T any] interface {
 	Equal(T) bool
 }
 
-// Equal asserts that got and want are equal.
-func Equal[T any](tb testing.TB, got, want T) {
+// Equal asserts that got is equal to any of the wanted values.
+func Equal[T any](tb testing.TB, got T, wants ...T) {
 	tb.Helper()
 
-	if areEqual(got, want) {
+	if len(wants) == 0 {
+		tb.Fatal("no wants given")
 		return
 	}
 
-	tb.Errorf("want %#v, got %#v", want, got)
+	// Check if got matches any of the wants.
+	for _, want := range wants {
+		if areEqual(got, want) {
+			return
+		}
+	}
+
+	// There are no matches, report the failure.
+	if len(wants) == 1 {
+		// There is only one want, report it directly.
+		tb.Errorf("want %#v, got %#v", wants[0], got)
+		return
+	}
+	// There are multiple wants, report a summary.
+	tb.Errorf("want any of the %v, got %#v", wants, got)
 }
 
 // Err asserts that the got error matches any of the wanted values.

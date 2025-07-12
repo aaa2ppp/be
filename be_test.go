@@ -23,10 +23,14 @@ type mockTB struct {
 
 func (m *mockTB) Helper() {}
 
-func (m *mockTB) Fatalf(format string, args ...any) {
-	m.failed = true
+func (m *mockTB) Fatal(args ...any) {
 	m.fatal = true
-	m.msg = fmt.Sprintf(format, args...)
+	m.Error(args...)
+}
+
+func (m *mockTB) Fatalf(format string, args ...any) {
+	m.fatal = true
+	m.Errorf(format, args...)
 }
 
 func (m *mockTB) Error(args ...any) {
@@ -217,6 +221,53 @@ func TestEqual(t *testing.T) {
 			}
 			if tb.fatal {
 				t.Error("should not be fatal")
+			}
+		})
+	})
+	t.Run("no wants", func(t *testing.T) {
+		tb := &mockTB{}
+		be.Equal(tb, 42)
+		if !tb.failed {
+			t.Error("should have failed")
+		}
+		if !tb.fatal {
+			t.Error("should be fatal")
+		}
+		wantMsg := "no wants given"
+		if tb.msg != wantMsg {
+			t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+		}
+	})
+	t.Run("multiple wants", func(t *testing.T) {
+		t.Run("all equal", func(t *testing.T) {
+			tb := &mockTB{}
+			x := 2 * 3 * 7
+			be.Equal(tb, x, 42, 42, 42)
+			if tb.failed {
+				t.Error("should have passed")
+			}
+		})
+		t.Run("some equal", func(t *testing.T) {
+			tb := &mockTB{}
+			x := 2 * 3 * 7
+			be.Equal(tb, x, 21, 42, 84)
+			if tb.failed {
+				t.Error("should have passed")
+			}
+		})
+		t.Run("none equal", func(t *testing.T) {
+			tb := &mockTB{}
+			x := 2 * 3 * 7
+			be.Equal(tb, x, 11, 12, 13)
+			if !tb.failed {
+				t.Error("should have failed")
+			}
+			if tb.fatal {
+				t.Error("should not be fatal")
+			}
+			wantMsg := "want any of the [11 12 13], got 42"
+			if tb.msg != wantMsg {
+				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
 			}
 		})
 	})
