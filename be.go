@@ -64,11 +64,11 @@ func Equal[T any](tb testing.TB, got T, wants ...T) {
 //     in the got's error tree using [errors.As].
 //   - Otherwise fails the check.
 //
-// If no wants are provided, checks if got is not nil.
+// If no wants are given, checks if got is not nil.
 func Err(tb testing.TB, got error, wants ...any) {
 	tb.Helper()
 
-	// If no wants are provided, we expect got to be a non-nil error.
+	// If no wants are given, we expect got to be a non-nil error.
 	if len(wants) == 0 {
 		if got != nil {
 			// got is a non-nil error, nothing to report.
@@ -89,28 +89,26 @@ func Err(tb testing.TB, got error, wants ...any) {
 		}
 	}
 
-	// Check if got matches the any of the wants.
-	messages := make([]string, 0, len(wants))
+	// Check if got matches any of the wants.
+	var message string
 	for _, want := range wants {
-		msg := checkErr(got, want)
-		if msg != "" {
-			messages = append(messages, msg)
+		errMsg := checkErr(got, want)
+		if errMsg == "" {
+			return
+		}
+		if message == "" {
+			message = errMsg
 		}
 	}
 
-	// Report the results.
-	if len(messages) < len(wants) {
-		// Some of the checks passed, nothing to report.
+	// There are no matches, report the failure.
+	if len(wants) == 1 {
+		// There is only one want, report it directly.
+		tb.Error(message)
 		return
 	}
-
-	if len(messages) == 1 {
-		// Only one check failed, report it directly.
-		tb.Error(messages[0])
-	} else {
-		// All checks failed, report a summary.
-		tb.Errorf("want any of the %v, got %T(%v)", wants, got, got)
-	}
+	// There are multiple wants, report a summary.
+	tb.Errorf("want any of the %v, got %T(%v)", wants, got, got)
 }
 
 // True asserts that got is true.
