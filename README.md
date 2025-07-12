@@ -143,7 +143,7 @@ Be doesn't fail the test when an assertion fails, so you can see all the errors 
 
 The parameter order is (got, want), not (want, got). It just feels more natural — like saying "account balance is 100 coins" instead of "100 coins is the account balance".
 
-Be has ≈100 lines of code (+450 lines for tests). For comparison, `is` has ≈250 loc (+250 lines for tests).
+Be has ≈150 lines of code (+500 lines for tests). For comparison, `is` has ≈250 loc (+250 lines for tests).
 
 ## Contributing
 

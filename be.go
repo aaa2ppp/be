@@ -70,14 +70,10 @@ func Err(tb testing.TB, got error, wants ...any) {
 
 	// If no wants are given, we expect got to be a non-nil error.
 	if len(wants) == 0 {
-		if got != nil {
-			// got is a non-nil error, nothing to report.
-			return
-		} else {
-			// Expected an error, but got nil.
+		if got == nil {
 			tb.Error("want error, got <nil>")
-			return
 		}
+		return
 	}
 
 	// Special case: there's only one want, it's nil, but got is not nil.
