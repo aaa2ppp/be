@@ -32,7 +32,7 @@ func Test(t *testing.T) {
     t.Run("fail", func(t *testing.T) {
         got, want := "olleh", "hello"
         be.Equal(t, got, want)
-        // want "hello", got "olleh"
+        // got: "olleh"; want: "hello"
     })
 }
 ```

@@ -116,61 +116,61 @@ func TestEqual(t *testing.T) {
 		}{
 			"integer": {
 				got: 42, want: 84,
-				msg: "want 84, got 42",
+				msg: "got: 42; want: 84",
 			},
 			"int32 vs int64": {
 				got: int32(42), want: int64(42),
-				msg: "want 42, got 42",
+				msg: "got: 42; want: 42",
 			},
 			"int vs string": {
 				got: 42, want: "42",
-				msg: `want "42", got 42`,
+				msg: `got: 42; want: "42"`,
 			},
 			"string": {
 				got: "hello", want: "world",
-				msg: `want "world", got "hello"`,
+				msg: `got: "hello"; want: "world"`,
 			},
 			"bool": {
 				got: true, want: false,
-				msg: "want false, got true",
+				msg: "got: true; want: false",
 			},
 			"struct": {
 				got: intType{42}, want: intType{84},
-				msg: "want be_test.intType{val:84}, got be_test.intType{val:42}",
+				msg: "got: be_test.intType{val:42}; want: be_test.intType{val:84}",
 			},
 			"pointer": {
 				got: &val1, want: &val2,
 			},
 			"byte slice": {
 				got: []byte("abc"), want: []byte("abd"),
-				msg: `want []byte{0x61, 0x62, 0x64}, got []byte{0x61, 0x62, 0x63}`,
+				msg: `got: []byte{0x61, 0x62, 0x63}; want: []byte{0x61, 0x62, 0x64}`,
 			},
 			"int slice": {
 				got: []int{42, 84}, want: []int{84, 42},
-				msg: `want []int{84, 42}, got []int{42, 84}`,
+				msg: `got: []int{42, 84}; want: []int{84, 42}`,
 			},
 			"int slice vs any slice": {
 				got: []int{42, 84}, want: []any{42, 84},
-				msg: `want []interface {}{42, 84}, got []int{42, 84}`,
+				msg: `got: []int{42, 84}; want: []interface {}{42, 84}`,
 			},
 			"time.Time": {
 				got: now, want: now.Add(time.Second),
 			},
 			"nil vs non-nil": {
 				got: nil, want: 42,
-				msg: "want 42, got <nil>",
+				msg: "got: <nil>; want: 42",
 			},
 			"non-nil vs nil": {
 				got: 42, want: nil,
-				msg: "want <nil>, got 42",
+				msg: "got: 42; want: <nil>",
 			},
 			"nil vs empty": {
 				got: []int(nil), want: []int{},
-				msg: "want []int{}, got []int(nil)",
+				msg: "got: []int(nil); want: []int{}",
 			},
 			"map": {
 				got: map[string]int{"a": 42}, want: map[string]int{"a": 84},
-				msg: `want map[string]int{"a":84}, got map[string]int{"a":42}`,
+				msg: `got: map[string]int{"a":42}; want: map[string]int{"a":84}`,
 			},
 			"chan": {
 				got: make(chan int), want: make(chan int),
@@ -188,7 +188,7 @@ func TestEqual(t *testing.T) {
 					t.Error("should not be fatal")
 				}
 				if tc.msg != "" && tb.msg != tc.msg {
-					t.Errorf("expected '%s', got '%s'", tc.msg, tb.msg)
+					t.Errorf("got: %q; want: %q", tb.msg, tc.msg)
 				}
 			})
 		}
@@ -235,7 +235,7 @@ func TestEqual(t *testing.T) {
 		}
 		wantMsg := "no wants given"
 		if tb.msg != wantMsg {
-			t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+			t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 		}
 	})
 	t.Run("multiple wants", func(t *testing.T) {
@@ -265,9 +265,9 @@ func TestEqual(t *testing.T) {
 			if tb.fatal {
 				t.Error("should not be fatal")
 			}
-			wantMsg := "want any of the [11 12 13], got 42"
+			wantMsg := "got: 42; want any of: [11 12 13]"
 			if tb.msg != wantMsg {
-				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
 	})
@@ -294,7 +294,7 @@ func TestErr(t *testing.T) {
 			}
 			wantMsg := "unexpected error: oops"
 			if tb.msg != wantMsg {
-				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
 	})
@@ -309,9 +309,9 @@ func TestErr(t *testing.T) {
 			if tb.fatal {
 				t.Error("should not be fatal")
 			}
-			wantMsg := `want error, got <nil>`
+			wantMsg := `got: <nil>; want: error`
 			if tb.msg != wantMsg {
-				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
 		t.Run("same error", func(t *testing.T) {
@@ -342,9 +342,9 @@ func TestErr(t *testing.T) {
 			if tb.fatal {
 				t.Error("should not be fatal")
 			}
-			wantMsg := "want *errors.errorString(error 2), got *errors.errorString(error 1)"
+			wantMsg := "got: *errors.errorString(error 1); want: *errors.errorString(error 2)"
 			if tb.msg != wantMsg {
-				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
 		t.Run("different type", func(t *testing.T) {
@@ -358,9 +358,9 @@ func TestErr(t *testing.T) {
 			if tb.fatal {
 				t.Error("should not be fatal")
 			}
-			wantMsg := "want be_test.errType(oops), got *errors.errorString(oops)"
+			wantMsg := "got: *errors.errorString(oops); want: be_test.errType(oops)"
 			if tb.msg != wantMsg {
-				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
 	})
@@ -383,9 +383,9 @@ func TestErr(t *testing.T) {
 			if tb.fatal {
 				t.Error("should not be fatal")
 			}
-			wantMsg := `want "day", got "the night is dark"`
+			wantMsg := `got: "the night is dark"; want: "day"`
 			if tb.msg != wantMsg {
-				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
 	})
@@ -408,9 +408,9 @@ func TestErr(t *testing.T) {
 			if tb.fatal {
 				t.Error("should not be fatal")
 			}
-			wantMsg := "want *fs.PathError, got be_test.errType"
+			wantMsg := "got: be_test.errType; want: *fs.PathError"
 			if tb.msg != wantMsg {
-				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
 	})
@@ -426,7 +426,7 @@ func TestErr(t *testing.T) {
 		}
 		wantMsg := "unsupported want type: int"
 		if tb.msg != wantMsg {
-			t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+			t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 		}
 	})
 	t.Run("no wants", func(t *testing.T) {
@@ -449,9 +449,9 @@ func TestErr(t *testing.T) {
 			if tb.fatal {
 				t.Error("should not be fatal")
 			}
-			wantMsg := "want error, got <nil>"
+			wantMsg := "got: <nil>; want: error"
 			if tb.msg != wantMsg {
-				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
 	})
@@ -482,9 +482,9 @@ func TestErr(t *testing.T) {
 			if tb.fatal {
 				t.Error("should not be fatal")
 			}
-			wantMsg := "want any of the [failed 42 *fs.PathError], got be_test.errType(oops)"
+			wantMsg := "got: be_test.errType(oops); want any of: [failed 42 *fs.PathError]"
 			if tb.msg != wantMsg {
-				t.Errorf("expected '%s', got '%s'", wantMsg, tb.msg)
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
 	})
@@ -507,8 +507,9 @@ func TestTrue(t *testing.T) {
 		if tb.fatal {
 			t.Error("should not be fatal")
 		}
-		if tb.msg != "not true" {
-			t.Errorf("expected 'not true', got '%s'", tb.msg)
+		wantMsg := "got: false; want: true"
+		if tb.msg != wantMsg {
+			t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 		}
 	})
 	t.Run("expression", func(t *testing.T) {

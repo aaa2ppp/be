@@ -47,11 +47,11 @@ func Equal[T any](tb testing.TB, got T, wants ...T) {
 	// There are no matches, report the failure.
 	if len(wants) == 1 {
 		// There is only one want, report it directly.
-		tb.Errorf("want %#v, got %#v", wants[0], got)
+		tb.Errorf("got: %#v; want: %#v", got, wants[0])
 		return
 	}
 	// There are multiple wants, report a summary.
-	tb.Errorf("want any of the %v, got %#v", wants, got)
+	tb.Errorf("got: %#v; want any of: %v", got, wants)
 }
 
 // Err asserts that the got error matches any of the wanted values.
@@ -71,7 +71,7 @@ func Err(tb testing.TB, got error, wants ...any) {
 	// If no wants are given, we expect got to be a non-nil error.
 	if len(wants) == 0 {
 		if got == nil {
-			tb.Error("want error, got <nil>")
+			tb.Error("got: <nil>; want: error")
 		}
 		return
 	}
@@ -104,14 +104,14 @@ func Err(tb testing.TB, got error, wants ...any) {
 		return
 	}
 	// There are multiple wants, report a summary.
-	tb.Errorf("want any of the %v, got %T(%v)", wants, got, got)
+	tb.Errorf("got: %T(%v); want any of: %v", got, got, wants)
 }
 
 // True asserts that got is true.
 func True(tb testing.TB, got bool) {
 	tb.Helper()
 	if !got {
-		tb.Error("not true")
+		tb.Error("got: false; want: true")
 	}
 }
 
@@ -159,7 +159,7 @@ func isNil(v any) bool {
 // Otherwise, returns an error message.
 func checkErr(got error, want any) string {
 	if want != nil && got == nil {
-		return "want error, got <nil>"
+		return "got: <nil>; want: error"
 	}
 
 	switch w := want.(type) {
@@ -169,16 +169,16 @@ func checkErr(got error, want any) string {
 		}
 	case string:
 		if !strings.Contains(got.Error(), w) {
-			return fmt.Sprintf("want %q, got %q", w, got.Error())
+			return fmt.Sprintf("got: %q; want: %q", got.Error(), w)
 		}
 	case error:
 		if !errors.Is(got, w) {
-			return fmt.Sprintf("want %T(%v), got %T(%v)", w, w, got, got)
+			return fmt.Sprintf("got: %T(%v); want: %T(%v)", got, got, w, w)
 		}
 	case reflect.Type:
 		target := reflect.New(w).Interface()
 		if !errors.As(got, target) {
-			return fmt.Sprintf("want %s, got %T", w, got)
+			return fmt.Sprintf("got: %T; want: %s", got, w)
 		}
 	default:
 		return fmt.Sprintf("unsupported want type: %T", want)
