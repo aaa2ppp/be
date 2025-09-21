@@ -158,6 +158,17 @@ func isNil(v any) bool {
 // Returns an empty string if there's a match.
 // Otherwise, returns an error message.
 func checkErr(got error, want any) string {
+	// Handle bool: want == true means expect error, false means expect no error.
+	if w, ok := want.(bool); ok {
+		if w && got == nil {
+			return "got: <nil>; want: error"
+		}
+		if !w && got != nil {
+			return fmt.Sprintf("unexpected error: %v", got)
+		}
+		return ""
+	}
+
 	if want != nil && got == nil {
 		return "got: <nil>; want: error"
 	}

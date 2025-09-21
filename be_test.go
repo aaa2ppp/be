@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nalgeon/be"
+	"github.com/aaa2ppp/be"
 )
 
 // mockTB is a mock implementation of testing.TB
@@ -67,6 +67,12 @@ type errType string
 
 func (e errType) Error() string {
 	return string(e)
+}
+
+type errBool bool
+
+func (e errBool) Error() string {
+	return fmt.Sprintf("%v", bool(e))
 }
 
 func TestEqual(t *testing.T) {
@@ -483,6 +489,134 @@ func TestErr(t *testing.T) {
 				t.Error("should not be fatal")
 			}
 			wantMsg := "got: be_test.errType(oops); want any of: [failed 42 *fs.PathError]"
+			if tb.msg != wantMsg {
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
+			}
+		})
+	})
+	t.Run("want bool", func(t *testing.T) {
+		t.Run("want true, got error", func(t *testing.T) {
+			tb := &mockTB{}
+			err := errors.New("oops")
+			be.Err(tb, err, true)
+			if tb.failed {
+				t.Errorf("failed: %s", tb.msg)
+			}
+		})
+		t.Run("want true, got nil", func(t *testing.T) {
+			tb := &mockTB{}
+			var err error
+			be.Err(tb, err, true)
+			if !tb.failed {
+				t.Error("should have failed")
+			}
+			if tb.fatal {
+				t.Error("should not be fatal")
+			}
+			wantMsg := "got: <nil>; want: error"
+			if tb.msg != wantMsg {
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
+			}
+		})
+		t.Run("want false, got nil", func(t *testing.T) {
+			tb := &mockTB{}
+			var err error
+			be.Err(tb, err, false)
+			if tb.failed {
+				t.Errorf("failed: %s", tb.msg)
+			}
+		})
+		t.Run("want false, got error", func(t *testing.T) {
+			tb := &mockTB{}
+			err := errors.New("oops")
+			be.Err(tb, err, false)
+			if !tb.failed {
+				t.Error("should have failed")
+			}
+			if tb.fatal {
+				t.Error("should not be fatal")
+			}
+			wantMsg := "unexpected error: oops"
+			if tb.msg != wantMsg {
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
+			}
+		})
+	})
+	t.Run("edge cases", func(t *testing.T) {
+		t.Run("typed nil is not nil", func(t *testing.T) {
+			tb := &mockTB{}
+			var nilPtr *fs.PathError
+			be.Err(tb, errors.New("oops"), nilPtr)
+			if !tb.failed {
+				t.Error("should have failed")
+			}
+			if tb.fatal {
+				t.Error("should not be fatal")
+			}
+			wantMsg := "got: *errors.errorString(oops); want: *fs.PathError(<nil>)"
+			if tb.msg != wantMsg {
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
+			}
+		})
+		t.Run("errBool(true) is not true", func(t *testing.T) {
+			tb := &mockTB{}
+			be.Err(tb, errors.New("oops"), errBool(true))
+			if !tb.failed {
+				t.Error("should have failed")
+			}
+			if tb.fatal {
+				t.Error("should not be fatal")
+			}
+			wantMsg := "got: *errors.errorString(oops); want: be_test.errBool(true)"
+			if tb.msg != wantMsg {
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
+			}
+		})
+		t.Run("errBool(false) is not false", func(t *testing.T) {
+			tb := &mockTB{}
+			be.Err(tb, nil, errBool(false))
+			if !tb.failed {
+				t.Error("should have failed")
+			}
+			if tb.fatal {
+				t.Error("should not be fatal")
+			}
+			wantMsg := "got: <nil>; want: error"
+			if tb.msg != wantMsg {
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
+			}
+		})
+		t.Run("errBool(false) with want=false", func(t *testing.T) {
+			tb := &mockTB{}
+			be.Err(tb, errBool(false), false)
+			if !tb.failed {
+				t.Error("should have failed")
+			}
+			if tb.fatal {
+				t.Error("should not be fatal")
+			}
+			wantMsg := "unexpected error: false"
+			if tb.msg != wantMsg {
+				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
+			}
+		})
+		t.Run("equal errBool", func(t *testing.T) {
+			tb := &mockTB{}
+			be.Err(tb, errBool(false), errBool(false))
+			if tb.failed {
+				t.Error("should have passed - values are equal")
+			}
+		})
+		t.Run("same errBool type but different values", func(t *testing.T) {
+			tb := &mockTB{}
+			be.Err(tb, errBool(false), errBool(true))
+			if !tb.failed {
+				t.Error("should have failed")
+			}
+			if tb.fatal {
+				t.Error("should not be fatal")
+			}
+			wantMsg := "got: be_test.errBool(false); want: be_test.errBool(true)"
 			if tb.msg != wantMsg {
 				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}

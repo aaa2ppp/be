@@ -16,7 +16,7 @@ Be is new, but it's ready for production (or maybe I should say "testing" :) I'v
 Install with go get:
 
 ```text
-go get github.com/nalgeon/be
+go get github.com/aaa2ppp/be
 ```
 
 `Equal` asserts that two values are equal:
@@ -102,6 +102,22 @@ func Test(t *testing.T) {
     }
     be.Err(t, got, reflect.TypeFor[*fs.PathError]())
     // ok
+}
+```
+
+Or that an error presence matches a boolean expectation:
+
+```go
+func Test(t *testing.T) {
+	var err error
+	wantErr := false
+	be.Err(t, err, wantErr)
+	// ok
+
+	err = errors.New("oops")
+	wantErr = true
+	be.Err(t, err, wantErr)
+	// ok
 }
 ```
 

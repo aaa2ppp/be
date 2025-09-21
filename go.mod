@@ -1,3 +1,3 @@
-module github.com/nalgeon/be
+module github.com/aaa2ppp/be
 
 go 1.23.0
