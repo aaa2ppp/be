@@ -7,10 +7,12 @@ type require struct {
 }
 
 func (r *require) Error(args ...any) {
+	r.TB.Helper()
 	r.Fatal(args...)
 }
 
 func (r *require) Errorf(format string, args ...any) {
+	r.TB.Helper()
 	r.Fatalf(format, args...)
 }
 
