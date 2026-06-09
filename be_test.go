@@ -104,8 +104,8 @@ func TestEqual(t *testing.T) {
 		for name, tc := range testCases {
 			t.Run(name, func(t *testing.T) {
 				tb := &mockTB{}
-				be.Equal(tb, tc.got, tc.want)
-				if tb.failed {
+				ok := be.Equal(tb, tc.got, tc.want)
+				if !ok || tb.failed {
 					t.Errorf("%#v vs %#v: should have passed", tc.got, tc.want)
 				}
 			})
@@ -186,8 +186,8 @@ func TestEqual(t *testing.T) {
 		for name, tc := range testCases {
 			t.Run(name, func(t *testing.T) {
 				tb := &mockTB{}
-				be.Equal(tb, tc.got, tc.want)
-				if !tb.failed {
+				ok := be.Equal(tb, tc.got, tc.want)
+				if ok || !tb.failed {
 					t.Errorf("%#v vs %#v: should have failed", tc.got, tc.want)
 				}
 				if tb.fatal {
@@ -204,8 +204,8 @@ func TestEqual(t *testing.T) {
 		date1 := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
 		date2 := time.Date(2025, 1, 1, 5, 0, 0, 0, time.FixedZone("UTC+5", 5*3600))
 		tb := &mockTB{}
-		be.Equal(tb, date1, date2)
-		if tb.failed {
+		ok := be.Equal(tb, date1, date2)
+		if !ok || tb.failed {
 			t.Errorf("%#v vs %#v: should have passed", date1, date2)
 		}
 	})
@@ -213,16 +213,16 @@ func TestEqual(t *testing.T) {
 		t.Run("equal", func(t *testing.T) {
 			tb := &mockTB{}
 			n1, n2 := newNoisy(42), newNoisy(42)
-			be.Equal(tb, n1, n2)
-			if tb.failed {
+			ok := be.Equal(tb, n1, n2)
+			if !ok || tb.failed {
 				t.Errorf("%#v vs %#v: should have passed", n1, n2)
 			}
 		})
 		t.Run("non-equal", func(t *testing.T) {
 			tb := &mockTB{}
 			n1, n2 := newNoisy(42), newNoisy(84)
-			be.Equal(tb, n1, n2)
-			if !tb.failed {
+			ok := be.Equal(tb, n1, n2)
+			if ok || !tb.failed {
 				t.Errorf("%#v vs %#v: should have failed", n1, n2)
 			}
 			if tb.fatal {
@@ -232,8 +232,8 @@ func TestEqual(t *testing.T) {
 	})
 	t.Run("no wants", func(t *testing.T) {
 		tb := &mockTB{}
-		be.Equal(tb, 42)
-		if !tb.failed {
+		ok := be.Equal(tb, 42)
+		if ok || !tb.failed {
 			t.Error("should have failed")
 		}
 		if !tb.fatal {
@@ -248,24 +248,24 @@ func TestEqual(t *testing.T) {
 		t.Run("all equal", func(t *testing.T) {
 			tb := &mockTB{}
 			x := 2 * 3 * 7
-			be.Equal(tb, x, 42, 42, 42)
-			if tb.failed {
+			ok := be.Equal(tb, x, 42, 42, 42)
+			if !ok || tb.failed {
 				t.Error("should have passed")
 			}
 		})
 		t.Run("some equal", func(t *testing.T) {
 			tb := &mockTB{}
 			x := 2 * 3 * 7
-			be.Equal(tb, x, 21, 42, 84)
-			if tb.failed {
+			ok := be.Equal(tb, x, 21, 42, 84)
+			if !ok || tb.failed {
 				t.Error("should have passed")
 			}
 		})
 		t.Run("none equal", func(t *testing.T) {
 			tb := &mockTB{}
 			x := 2 * 3 * 7
-			be.Equal(tb, x, 11, 12, 13)
-			if !tb.failed {
+			ok := be.Equal(tb, x, 11, 12, 13)
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
@@ -283,16 +283,16 @@ func TestErr(t *testing.T) {
 	t.Run("want nil", func(t *testing.T) {
 		t.Run("got nil", func(t *testing.T) {
 			tb := &mockTB{}
-			be.Err(tb, nil, nil)
-			if tb.failed {
+			ok := be.Err(tb, nil, nil)
+			if !ok || tb.failed {
 				t.Errorf("failed: %s", tb.msg)
 			}
 		})
 		t.Run("got error", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errors.New("oops")
-			be.Err(tb, err, nil)
-			if !tb.failed {
+			ok := be.Err(tb, err, nil)
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if !tb.fatal {
@@ -308,8 +308,8 @@ func TestErr(t *testing.T) {
 		t.Run("got nil", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errors.New("oops")
-			be.Err(tb, nil, err)
-			if !tb.failed {
+			ok := be.Err(tb, nil, err)
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
@@ -323,8 +323,8 @@ func TestErr(t *testing.T) {
 		t.Run("same error", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errors.New("oops")
-			be.Err(tb, err, err)
-			if tb.failed {
+			ok := be.Err(tb, err, err)
+			if !ok || tb.failed {
 				t.Errorf("failed: %s", tb.msg)
 			}
 		})
@@ -332,8 +332,8 @@ func TestErr(t *testing.T) {
 			tb := &mockTB{}
 			err := errors.New("oops")
 			wrappedErr := fmt.Errorf("wrapped: %w", err)
-			be.Err(tb, wrappedErr, err)
-			if tb.failed {
+			ok := be.Err(tb, wrappedErr, err)
+			if !ok || tb.failed {
 				t.Errorf("failed: %s", tb.msg)
 			}
 		})
@@ -341,8 +341,8 @@ func TestErr(t *testing.T) {
 			tb := &mockTB{}
 			err1 := errors.New("error 1")
 			err2 := errors.New("error 2")
-			be.Err(tb, err1, err2)
-			if !tb.failed {
+			ok := be.Err(tb, err1, err2)
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
@@ -357,8 +357,8 @@ func TestErr(t *testing.T) {
 			tb := &mockTB{}
 			err1 := errors.New("oops")
 			err2 := errType("oops")
-			be.Err(tb, err1, err2)
-			if !tb.failed {
+			ok := be.Err(tb, err1, err2)
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
@@ -374,16 +374,16 @@ func TestErr(t *testing.T) {
 		t.Run("contains", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errors.New("the night is dark")
-			be.Err(tb, err, "night is")
-			if tb.failed {
+			ok := be.Err(tb, err, "night is")
+			if !ok || tb.failed {
 				t.Errorf("failed: %s", tb.msg)
 			}
 		})
 		t.Run("does not contain", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errors.New("the night is dark")
-			be.Err(tb, err, "day")
-			if !tb.failed {
+			ok := be.Err(tb, err, "day")
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
@@ -399,16 +399,16 @@ func TestErr(t *testing.T) {
 		t.Run("same type", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errType("oops")
-			be.Err(tb, err, reflect.TypeFor[errType]())
-			if tb.failed {
+			ok := be.Err(tb, err, reflect.TypeFor[errType]())
+			if !ok || tb.failed {
 				t.Errorf("failed: %s", tb.msg)
 			}
 		})
 		t.Run("different type", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errType("oops")
-			be.Err(tb, err, reflect.TypeFor[*fs.PathError]())
-			if !tb.failed {
+			ok := be.Err(tb, err, reflect.TypeFor[*fs.PathError]())
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
@@ -423,8 +423,8 @@ func TestErr(t *testing.T) {
 	t.Run("unsupported want", func(t *testing.T) {
 		tb := &mockTB{}
 		var want int
-		be.Err(tb, errors.New("oops"), want)
-		if !tb.failed {
+		ok := be.Err(tb, errors.New("oops"), want)
+		if ok || !tb.failed {
 			t.Error("should have failed")
 		}
 		if tb.fatal {
@@ -439,8 +439,8 @@ func TestErr(t *testing.T) {
 		t.Run("got error", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errors.New("oops")
-			be.Err(tb, err)
-			if tb.failed {
+			ok := be.Err(tb, err)
+			if !ok || tb.failed {
 				t.Error("should have passed")
 			}
 
@@ -448,8 +448,8 @@ func TestErr(t *testing.T) {
 		t.Run("got nil", func(t *testing.T) {
 			tb := &mockTB{}
 			var err error
-			be.Err(tb, err)
-			if !tb.failed {
+			ok := be.Err(tb, err)
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
@@ -465,24 +465,24 @@ func TestErr(t *testing.T) {
 		t.Run("all match", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errType("oops")
-			be.Err(tb, err, errType("oops"), "oops", reflect.TypeFor[errType]())
-			if tb.failed {
+			ok := be.Err(tb, err, errType("oops"), "oops", reflect.TypeFor[errType]())
+			if !ok || tb.failed {
 				t.Error("should have passed")
 			}
 		})
 		t.Run("some match", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errType("oops")
-			be.Err(tb, err, errType("oops"), 42, reflect.TypeFor[errType]())
-			if tb.failed {
+			ok := be.Err(tb, err, errType("oops"), 42, reflect.TypeFor[errType]())
+			if !ok || tb.failed {
 				t.Error("should have passed")
 			}
 		})
 		t.Run("none match", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errType("oops")
-			be.Err(tb, err, errType("failed"), 42, reflect.TypeFor[*fs.PathError]())
-			if !tb.failed {
+			ok := be.Err(tb, err, errType("failed"), 42, reflect.TypeFor[*fs.PathError]())
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
@@ -627,15 +627,15 @@ func TestErr(t *testing.T) {
 func TestTrue(t *testing.T) {
 	t.Run("true", func(t *testing.T) {
 		tb := &mockTB{}
-		be.True(tb, true)
-		if tb.failed {
+		ok := be.True(tb, true)
+		if !ok || tb.failed {
 			t.Errorf("failed: %s", tb.msg)
 		}
 	})
 	t.Run("false", func(t *testing.T) {
 		tb := &mockTB{}
-		be.True(tb, false)
-		if !tb.failed {
+		ok := be.True(tb, false)
+		if ok || !tb.failed {
 			t.Error("should have failed")
 		}
 		if tb.fatal {
@@ -649,8 +649,8 @@ func TestTrue(t *testing.T) {
 	t.Run("expression", func(t *testing.T) {
 		tb := &mockTB{}
 		f := func() int { return 42 }
-		be.True(tb, (f() == 42))
-		if tb.failed {
+		ok := be.True(tb, (f() == 42))
+		if !ok || tb.failed {
 			t.Errorf("failed: %s", tb.msg)
 		}
 	})
