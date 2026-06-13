@@ -36,26 +36,41 @@ func JSON(tb testing.TB) *jsonFormat {
 	return &jsonFormat{tb}
 }
 
-func (j *jsonFormat) Errorf(format string, args ...any) {
-	j.TB.Helper()
+func (f *jsonFormat) Errorf(format string, args ...any) {
+	f.TB.Helper()
 
+	jsonArgs := make([]any, 0, len(args))
 	for i := range args {
 		var b bytes.Buffer
 		e := json.NewEncoder(&b)
 		e.SetIndent("", "  ")
 		if err := e.Encode(args[i]); err != nil {
-			args[i] = fmt.Sprintf("<JSON encoding failed: %v>", err)
+			jsonArgs = append(jsonArgs, fmt.Sprintf("<!JSON encoding failed: %v>", err))
 			continue
 		}
-		args[i] = strings.TrimSuffix(b.String(), "\n")
+		jsonArgs = append(jsonArgs, strings.TrimSuffix(b.String(), "\n"))
 	}
 
-	if len(args) == 2 {
-		j.TB.Errorf("diff (-want +got):\n%v", cmp.Diff(args[1], args[0]))
-		return
+	format = "\n>>>>>>> got\n%s\n=======\n%s\n<<<<<<< want"
+	f.TB.Errorf(format, jsonArgs...)
+}
+
+type diffFormat struct {
+	testing.TB
+}
+
+func Diff(tb testing.TB) *diffFormat {
+	return &diffFormat{tb}
+}
+
+func (f *diffFormat) Errorf(format string, args ...any) {
+	f.TB.Helper()
+
+	if len(args) != 2 {
+		f.TB.Log("<!Diff requires exactly two arguments>")
+		f.TB.Errorf(format, args...)
 	}
 
-	format = strings.Replace(format, "; want:", "\n--- want: ---", 1)
-	format = strings.ReplaceAll(format, "%#v", "\n%v")
-	j.TB.Errorf(format, args...)
+	msg := strings.TrimRight(cmp.Diff(args[1], args[0]), " \t\r\n")
+	f.TB.Errorf("diff (-want +got):\n%s", msg)
 }
