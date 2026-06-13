@@ -495,19 +495,19 @@ func TestErr(t *testing.T) {
 		})
 	})
 	t.Run("want bool", func(t *testing.T) {
-		t.Run("want true, got error", func(t *testing.T) {
+		t.Run("got error, want true", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errors.New("oops")
-			be.Err(tb, err, true)
-			if tb.failed {
-				t.Errorf("failed: %s", tb.msg)
+			ok := be.Err(tb, err, true)
+			if !ok || tb.failed {
+				t.Errorf("should have passed")
 			}
 		})
-		t.Run("want true, got nil", func(t *testing.T) {
+		t.Run("got nil, want true", func(t *testing.T) {
 			tb := &mockTB{}
 			var err error
-			be.Err(tb, err, true)
-			if !tb.failed {
+			ok := be.Err(tb, err, true)
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
@@ -518,19 +518,19 @@ func TestErr(t *testing.T) {
 				t.Errorf("got: %q; want: %q", tb.msg, wantMsg)
 			}
 		})
-		t.Run("want false, got nil", func(t *testing.T) {
+		t.Run("got nil, want false", func(t *testing.T) {
 			tb := &mockTB{}
 			var err error
-			be.Err(tb, err, false)
-			if tb.failed {
-				t.Errorf("failed: %s", tb.msg)
+			ok := be.Err(tb, err, false)
+			if !ok || tb.failed {
+				t.Errorf("should have passed")
 			}
 		})
-		t.Run("want false, got error", func(t *testing.T) {
+		t.Run("got error, want false", func(t *testing.T) {
 			tb := &mockTB{}
 			err := errors.New("oops")
-			be.Err(tb, err, false)
-			if !tb.failed {
+			ok := be.Err(tb, err, false)
+			if ok || !tb.failed {
 				t.Error("should have failed")
 			}
 			if tb.fatal {
